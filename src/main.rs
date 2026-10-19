@@ -37,7 +37,7 @@ fn take_input() -> String {
 
 fn main() {
     print!("Enter the Title of the Note: ");
-    std::io::stdout().flush().unwrap();
+    io::stdout().flush().unwrap();
     let title = take_input();
     print!("Enter the Body of the Note: ");
     io::stdout().flush().unwrap();
