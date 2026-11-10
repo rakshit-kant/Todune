@@ -16,16 +16,9 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-use serde::{Deserialize, Serialize};
-use serde_json::to_string_pretty;
+// use serde_json::to_string_pretty;
 use std::fs::File;
 use std::io::{self, BufWriter, Write};
-
-#[derive(Debug, Deserialize, Serialize)]
-struct Note {
-    title: String,
-    body: String,
-}
 
 fn take_input() -> String {
     let mut input: String = String::new();
@@ -35,16 +28,42 @@ fn take_input() -> String {
     input.trim().to_string()
 }
 
-fn main() {
-    print!("Enter the Title of the Note: ");
+fn create_task(tasks: &mut Vec<String>) {
+    // Get Tasks
+    print!("Enter the Task: ");
     io::stdout().flush().unwrap();
-    let title = take_input();
-    print!("Enter the Body of the Note: ");
-    io::stdout().flush().unwrap();
-    let body = take_input();
-    let note = Note { title, body };
-    let storage = File::create("notes.json").expect("Could not create notes.json");
+    let task: String = take_input();
+
+    tasks.push(task);
+
+    // Create a File Named tasks.json
+    let storage = File::create("tasks.json").expect("Could not create tasks.json");
     let mut storage_writer = BufWriter::new(storage);
-    serde_json::to_writer(&mut storage_writer, &note).expect("Could Not Write Note");
-    storage_writer.flush().expect("Could Not Save Note");
+    // Put the contents of tasks to the tasks.json file
+    serde_json::to_writer_pretty(&mut storage_writer, tasks).expect("Could Not Write Tasks");
+    storage_writer.flush().expect("Could Not Save Tasks");
+}
+
+// fn view_tasks() {}
+
+fn matcher(tasks: &mut Vec<String>) {
+    println!("1 => Create a Task");
+    println!("2 => View all Tasks");
+    println!("3 => Search a Task");
+    println!("4 => Delete a Task");
+    print!("Enter a Number: ");
+    io::stdout().flush().unwrap();
+    let num = take_input().trim().parse().expect("Not a Number!");
+    match num {
+        1 => create_task(tasks),
+        // 2 => view_tasks(),
+        // 3 => search_task(),
+        // 4 => delete_task(),
+        _ => println!("Yeah!"),
+    }
+}
+
+fn main() {
+    let mut tasks: Vec<String> = Vec::new();
+    matcher(&mut tasks);
 }
