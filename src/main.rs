@@ -19,6 +19,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // use serde_json::to_string_pretty;
 use std::fs::File;
 use std::io::{self, BufWriter, Write};
+use std::path::Path;
 
 fn take_input() -> String {
     let mut input: String = String::new();
@@ -63,7 +64,20 @@ fn matcher(tasks: &mut Vec<String>) {
     }
 }
 
+fn file_checker() -> bool {
+    let project_dir = Path::new(env!("CARGO_MANIFEST_DIR"));
+    let file_path = project_dir.join("tasks.json");
+
+    if file_path.is_file() {
+        return true;
+    } else {
+        return false;
+    }
+}
+
 fn main() {
-    let mut tasks: Vec<String> = Vec::new();
-    matcher(&mut tasks);
+    if !file_checker() {
+        let mut tasks: Vec<String> = Vec::new();
+    }
+    // matcher(&mut tasks);
 }
