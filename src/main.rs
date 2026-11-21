@@ -17,8 +17,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
 // use serde_json::to_string_pretty;
+use std::error::Error;
 use std::fs::File;
-use std::io::{self, BufWriter, Write};
+use std::io::{self, BufReader, BufWriter, Write};
 use std::path::Path;
 
 fn take_input() -> String {
@@ -40,8 +41,9 @@ fn create_task(tasks: &mut Vec<String>) {
     // Create a File Named tasks.json
     let storage = File::create("tasks.json").expect("Could not create tasks.json");
     let mut storage_writer = BufWriter::new(storage);
-    // Put the contents of tasks to the tasks.json file
+    // Write the tasks to the tasks.json file
     serde_json::to_writer_pretty(&mut storage_writer, tasks).expect("Could Not Write Tasks");
+    // Save the File
     storage_writer.flush().expect("Could Not Save Tasks");
 }
 
@@ -75,9 +77,20 @@ fn file_checker() -> bool {
     }
 }
 
+fn file_reader() -> Result<Vec<String>, Box<dyn Error>> {
+    let file = File::open("tasks.json")?;
+    let reader = BufReader::new(file);
+
+    let notes: Vec<String> = serde_json::from_reader(reader)?;
+
+    Ok(notes)
+}
+
 fn main() {
     if !file_checker() {
         let mut tasks: Vec<String> = Vec::new();
+    } else {
+        todo!("Read the File Implementation left");
     }
     // matcher(&mut tasks);
 }
