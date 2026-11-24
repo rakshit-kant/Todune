@@ -18,7 +18,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 // use serde_json::to_string_pretty;
 use std::error::Error;
-use std::fs::File;
+use std::fs::{File, OpenOptions};
 use std::io::{self, BufReader, BufWriter, Write};
 use std::path::Path;
 
@@ -31,6 +31,7 @@ fn take_input() -> String {
 }
 
 fn create_task(tasks: &mut Vec<String>) {
+    println!();
     // Get Tasks
     print!("Enter the Task: ");
     io::stdout().flush().unwrap();
@@ -39,7 +40,12 @@ fn create_task(tasks: &mut Vec<String>) {
     tasks.push(task);
 
     // Create a File Named tasks.json
-    let storage = File::create("tasks.json").expect("Could not create tasks.json");
+    let storage = OpenOptions::new()
+        .read(true)
+        .write(true)
+        .create(true)
+        .open("tasks.json")
+        .expect("Could not create or open tasks.json");
     let mut storage_writer = BufWriter::new(storage);
     // Write the tasks to the tasks.json file
     serde_json::to_writer_pretty(&mut storage_writer, tasks).expect("Could Not Write Tasks");
@@ -47,19 +53,25 @@ fn create_task(tasks: &mut Vec<String>) {
     storage_writer.flush().expect("Could Not Save Tasks");
 }
 
-// fn view_tasks() {}
+fn view_tasks(tasks: &mut [String]) {
+    println!();
+    for (index, tasks) in tasks.iter().enumerate() {
+        println!("{}. {}", index + 1, tasks);
+    }
+}
 
 fn matcher(tasks: &mut Vec<String>) {
+    println!();
     println!("1 => Create a Task");
     println!("2 => View all Tasks");
-    println!("3 => Search a Task");
+    println!("3 => View a Task");
     println!("4 => Delete a Task");
     print!("Enter a Number: ");
     io::stdout().flush().unwrap();
     let num = take_input().trim().parse().expect("Not a Number!");
     match num {
         1 => create_task(tasks),
-        // 2 => view_tasks(),
+        2 => view_tasks(tasks),
         // 3 => search_task(),
         // 4 => delete_task(),
         _ => println!("Yeah!"),
@@ -70,11 +82,7 @@ fn file_checker() -> bool {
     let project_dir = Path::new(env!("CARGO_MANIFEST_DIR"));
     let file_path = project_dir.join("tasks.json");
 
-    if file_path.is_file() {
-        return true;
-    } else {
-        return false;
-    }
+    file_path.is_file()
 }
 
 fn file_reader() -> Result<Vec<String>, Box<dyn Error>> {
@@ -89,8 +97,9 @@ fn file_reader() -> Result<Vec<String>, Box<dyn Error>> {
 fn main() {
     if !file_checker() {
         let mut tasks: Vec<String> = Vec::new();
+        matcher(&mut tasks);
     } else {
-        todo!("Read the File Implementation left");
+        let mut tasks: Vec<String> = file_reader().expect("Notes Reader Failed");
+        matcher(&mut tasks);
     }
-    // matcher(&mut tasks);
 }
