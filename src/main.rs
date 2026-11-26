@@ -61,7 +61,17 @@ fn view_tasks(tasks: &mut [String]) {
 }
 
 fn delete_task(tasks: &mut Vec<String>) {
-    todo!("Make the Delete Task Functionality");
+    for task in tasks.iter() {
+        println!("{}", task);
+    }
+
+    print!("Enter the Task you Want to Remove: ");
+    io::stdout().flush().unwrap();
+    let task: String = take_input();
+
+    if let Some(index) = tasks.iter().position(|x| x == &task) {
+        tasks.swap_remove(index);
+    }
 }
 
 fn matcher(tasks: &mut Vec<String>) {
@@ -101,9 +111,15 @@ fn file_reader() -> Result<Vec<String>, Box<dyn Error>> {
 fn main() {
     if !file_checker() {
         let mut tasks: Vec<String> = Vec::new();
-        matcher(&mut tasks);
+
+        loop {
+            matcher(&mut tasks);
+        }
     } else {
         let mut tasks: Vec<String> = file_reader().expect("Notes Reader Failed");
-        matcher(&mut tasks);
+
+        loop {
+            matcher(&mut tasks);
+        }
     }
 }
