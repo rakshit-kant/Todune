@@ -60,6 +60,10 @@ fn view_tasks(tasks: &mut [String]) {
     }
 }
 
+fn delete_task(tasks: &mut Vec<String>) {
+    todo!("Make the Delete Task Functionality");
+}
+
 fn matcher(tasks: &mut Vec<String>) {
     println!();
     println!("1 => Create a Task");
@@ -73,7 +77,7 @@ fn matcher(tasks: &mut Vec<String>) {
         1 => create_task(tasks),
         2 => view_tasks(tasks),
         // 3 => search_task(),
-        // 4 => delete_task(),
+        4 => delete_task(tasks),
         _ => println!("Yeah!"),
     }
 }
