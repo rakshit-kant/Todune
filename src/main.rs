@@ -26,14 +26,14 @@ fn take_input() -> String {
     let mut input: String = String::new();
     std::io::stdin()
         .read_line(&mut input)
-        .expect("Invalid Input!");
+        .expect("Invalid input!");
     input.trim().to_string()
 }
 
 fn create_task(tasks: &mut Vec<String>) {
     println!();
     // Get Tasks
-    print!("Enter the Task: ");
+    print!("Enter the task: ");
     io::stdout().flush().unwrap();
     let task: String = take_input();
 
@@ -48,9 +48,9 @@ fn create_task(tasks: &mut Vec<String>) {
         .expect("Could not create or open tasks.json");
     let mut storage_writer = BufWriter::new(storage);
     // Write the tasks to the tasks.json file
-    serde_json::to_writer_pretty(&mut storage_writer, tasks).expect("Could Not Write Tasks");
+    serde_json::to_writer_pretty(&mut storage_writer, tasks).expect("Could not write tasks");
     // Save the File
-    storage_writer.flush().expect("Could Not Save Tasks");
+    storage_writer.flush().expect("Could not save tasks");
 }
 
 fn view_tasks(tasks: &mut [String]) {
@@ -61,34 +61,48 @@ fn view_tasks(tasks: &mut [String]) {
 }
 
 fn delete_task(tasks: &mut Vec<String>) {
-    for task in tasks.iter() {
-        println!("{}", task);
+    println!();
+    for (index, tasks) in tasks.iter().enumerate() {
+        println!("{}. {}", index + 1, tasks);
     }
 
-    print!("Enter the Task you Want to Remove: ");
+    println!();
+    print!("Enter the task you want to remove (serial number): ");
     io::stdout().flush().unwrap();
-    let task: String = take_input();
+    let ser_num: usize = take_input().trim().parse().expect("Not a number!");
 
-    if let Some(index) = tasks.iter().position(|x| x == &task) {
-        tasks.swap_remove(index);
+    if ser_num > 0 && ser_num <= tasks.len() {
+        tasks.swap_remove(ser_num - 1);
+    } else {
+        println!("Invalid task number!");
     }
+
+    // Overwrite a file named tasks.json
+    let storage = File::create("tasks.json").expect("Could not overwrite tasks.json");
+    let mut storage_writer = BufWriter::new(storage);
+    // Write the tasks to the tasks.json file
+    serde_json::to_writer_pretty(&mut storage_writer, tasks).expect("Could not write tasks");
+    // Save the File
+    storage_writer.flush().expect("Could not save tasks");
 }
 
 fn matcher(tasks: &mut Vec<String>) {
-    println!();
-    println!("1 => Create a Task");
-    println!("2 => View all Tasks");
-    println!("3 => View a Task");
-    println!("4 => Delete a Task");
-    print!("Enter a Number: ");
-    io::stdout().flush().unwrap();
-    let num = take_input().trim().parse().expect("Not a Number!");
-    match num {
-        1 => create_task(tasks),
-        2 => view_tasks(tasks),
-        // 3 => search_task(),
-        4 => delete_task(tasks),
-        _ => println!("Yeah!"),
+    loop {
+        println!();
+        println!("1 => Create a task");
+        println!("2 => View all tasks");
+        println!("3 => Delete a task");
+        println!("4 => Exit the program");
+        print!("Enter a number: ");
+        io::stdout().flush().unwrap();
+        let num = take_input().trim().parse().expect("Not a number!");
+        match num {
+            1 => create_task(tasks),
+            2 => view_tasks(tasks),
+            3 => delete_task(tasks),
+            4 => break,
+            _ => println!("Yeah!"),
+        }
     }
 }
 
@@ -111,15 +125,9 @@ fn file_reader() -> Result<Vec<String>, Box<dyn Error>> {
 fn main() {
     if !file_checker() {
         let mut tasks: Vec<String> = Vec::new();
-
-        loop {
-            matcher(&mut tasks);
-        }
+        matcher(&mut tasks);
     } else {
-        let mut tasks: Vec<String> = file_reader().expect("Notes Reader Failed");
-
-        loop {
-            matcher(&mut tasks);
-        }
+        let mut tasks: Vec<String> = file_reader().expect("Notes reader failed");
+        matcher(&mut tasks);
     }
 }
